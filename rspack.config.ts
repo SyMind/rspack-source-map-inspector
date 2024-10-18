@@ -1,15 +1,19 @@
 import { defineConfig } from "@rspack/cli";
 import { rspack } from "@rspack/core";
+import * as RefreshPlugin from "@rspack/plugin-react-refresh";
 
 // Target browsers, see: https://github.com/browserslist/browserslist
 const targets = ["chrome >= 87", "edge >= 88", "firefox >= 78", "safari >= 14"];
 
+const isDev = process.env.NODE_ENV === "development";
+
 export default defineConfig({
+	target: 'node',
 	entry: {
-		main: "./src/index.ts"
+		main: "./src/index.tsx"
 	},
 	resolve: {
-		extensions: ["...", ".ts"]
+		extensions: ["...", ".ts", ".tsx", ".jsx"]
 	},
 	module: {
 		rules: [
@@ -18,30 +22,22 @@ export default defineConfig({
 				type: "asset"
 			},
 			{
-				test: /\.js$/,
+				test: /\.(jsx?|tsx?)$/,
 				use: [
 					{
 						loader: "builtin:swc-loader",
 						options: {
 							jsc: {
 								parser: {
-									syntax: "ecmascript"
-								}
-							},
-							env: { targets }
-						}
-					}
-				]
-			},
-			{
-				test: /\.ts$/,
-				use: [
-					{
-						loader: "builtin:swc-loader",
-						options: {
-							jsc: {
-								parser: {
-									syntax: "typescript"
+									syntax: "typescript",
+									tsx: true
+								},
+								transform: {
+									react: {
+										runtime: "automatic",
+										development: isDev,
+										refresh: isDev
+									}
 								}
 							},
 							env: { targets }
@@ -51,7 +47,9 @@ export default defineConfig({
 			}
 		]
 	},
-	plugins: [new rspack.HtmlRspackPlugin({ template: "./index.html" })],
+	plugins: [
+		isDev ? new RefreshPlugin() : null
+	],
 	optimization: {
 		minimizer: [
 			new rspack.SwcJsMinimizerRspackPlugin(),
