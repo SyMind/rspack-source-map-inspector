@@ -5,10 +5,12 @@ const b = recast.types.builders;
 module.exports = function (source) {
     const ast = recast.parse(source);
 
+    let diagnosticId = 0;
     let lineOffset;
 
     recast.visit(ast, {
         visitProgram(path) {
+            diagnosticId++;
             lineOffset = 1;
             this.traverse(path);
         },
@@ -20,7 +22,7 @@ module.exports = function (source) {
             const consoleLog = b.expressionStatement(
                 b.callExpression(
                     b.memberExpression(b.identifier('console'), b.identifier('log')),
-                    [b.stringLiteral(`resourcePath: ${this.resourcePath}, line: ${line}`)]
+                    [b.stringLiteral(`diagnosticId: ${diagnosticId}, line: ${line}`)]
                 )
             );
 
