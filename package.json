@@ -12,6 +12,7 @@
     "@rspack/plugin-react-refresh": "^1.0.0",
     "cross-env": "^7.0.3",
     "react-refresh": "^0.14.2",
+    "recast": "^0.23.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
