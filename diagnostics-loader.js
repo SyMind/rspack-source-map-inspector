@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const recast = require("recast");
+const { parse } = require("@babel/parser");
+const traverse = require("@babel/traverse").default;
 
 let diagnosticId = 0;
 const diagnosticMappings = {};
@@ -17,29 +18,31 @@ module.exports = function (source) {
     const { resourcePath } = this;
     const lines = source.split('\n');
 
-    const ast = recast.parse(source);
+    const ast = parse(source, {
+        sourceType: "module",
+        plugins: [
+            "jsx",
+            "typescript",
+        ],
+    });
 
     let lineOffset;
 
-    recast.visit(ast, {
-        visitProgram(path) {
+    traverse(ast, {
+        enter() {
             lineOffset = 1;
-            this.traverse(path);
         },
-        visitBlockStatement(path) {
-            const body = path.get('body').node;
-            const { start } = body.loc;
-
-            if (body.body.length > 0) {
+        BlockStatement(path) {
+            const { node } = path;
+            const { start } = node.loc;
+            if (node.body.length > 0) {
                 const line = lines[start.line - 1];
                 const diagnostic = `console.log('diagnosticId: ${diagnosticId}, line: ${start.line}');`;
                 lines[start.line - 1] = line.substring(0, start.column + 1) + diagnostic + line.substring(start.column + 1);
                 diagnosticMappings[diagnosticId] = resourcePath;
                 diagnosticId++;
             }
-
-            this.traverse(path);
-        },
+        }
     });
 
     return lines.join('\n');
