@@ -1,5 +1,6 @@
-const { SourceMapConsumer } = require('source-map');
 const lineColumn = require("line-column");
+const { SourceMapConsumer } = require('source-map');
+const { explore } = require("source-map-explorer");
 
 class InspectorPlugin {
   apply(compiler) {
@@ -9,21 +10,34 @@ class InspectorPlugin {
 
       const jsFiles = Object.keys(compilation.assets).filter(file => file.endsWith('.js'));
       for (const jsFile of jsFiles) {
-        const map = compilation.assets[`${jsFile}.map`];
-        if (!map) {
+        const mapAsset = compilation.assets[`${jsFile}.map`];
+        if (!mapAsset) {
           continue;
         }
-        const source = compilation.assets[jsFile].source();
+        const code = compilation.assets[jsFile].source();
+        const map = mapAsset.source();
 
-        await SourceMapConsumer.with(map.source(), null, consumer => {
+        await explore([
+          {
+            code: Buffer.from(code),
+            map: Buffer.from(map),
+          }
+        ]).catch(({ errors }) => {
+          if (errors.length) {
+            const { message } = errors[0];
+            throw new Error(message);
+          }
+        });
+
+        await SourceMapConsumer.with(map, null, consumer => {
           const regex = /console\.log\("diagnosticId: (\d+), line: (\d+)"\);/g;
           let match;
-          while ((match = regex.exec(source)) !== null) {
+          while ((match = regex.exec(code)) !== null) {
             total++;
 
             const [_, diagnosticId, originLineLiteral] = match;
             const originLine = parseInt(originLineLiteral, 10);
-            const { line: generatedLine, col: generatedColumn } = lineColumn(source).fromIndex(match.index);
+            const { line: generatedLine, col: generatedColumn } = lineColumn(code).fromIndex(match.index);
 
             const originalPosition = consumer.originalPositionFor({
               line: generatedLine,
@@ -36,7 +50,8 @@ class InspectorPlugin {
           }
         });
 
-        console.log('Total diagnostics:', total, 'Incorrect diagnostics:', incorrectCount);
+        console.log('Total diagnostics:', total);
+        console.log('Incorrect diagnostics:', incorrectCount);
       }
 
       callback();
