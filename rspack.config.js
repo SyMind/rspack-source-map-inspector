@@ -1,15 +1,17 @@
-import * as path from "node:path";
-import { defineConfig } from "@rspack/cli";
-import { rspack } from "@rspack/core";
-import * as RefreshPlugin from "@rspack/plugin-react-refresh";
+const path = require("node:path");
+const { defineConfig } = require("@rspack/cli");
+const { rspack } = require("@rspack/core");
+const RefreshPlugin = require("@rspack/plugin-react-refresh");
+const InspectorPlugin = require("./inspector-plugin");
 
 // Target browsers, see: https://github.com/browserslist/browserslist
 const targets = ["chrome >= 87", "edge >= 88", "firefox >= 78", "safari >= 14"];
 
 const isDev = process.env.NODE_ENV === "development";
 
-export default defineConfig({
+module.exports = defineConfig({
   target: "node",
+  devtool: 'source-map',
   entry: {
     main: "./src/index.tsx",
   },
@@ -26,7 +28,7 @@ export default defineConfig({
         test: /\.(jsx?|tsx?)$/,
         use: [
           {
-            loader: path.join(__dirname, "line-diagnostics-loader"),
+            loader: path.join(__dirname, "diagnostics-loader"),
           },
           {
             loader: "builtin:swc-loader",
@@ -51,7 +53,10 @@ export default defineConfig({
       },
     ],
   },
-  plugins: [isDev ? new RefreshPlugin() : null],
+  plugins: [
+    isDev ? new RefreshPlugin() : null,
+    new InspectorPlugin(),
+  ],
   optimization: {
     minimizer: [
       new rspack.SwcJsMinimizerRspackPlugin(),
