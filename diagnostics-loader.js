@@ -26,12 +26,15 @@ module.exports = function (source) {
         ],
     });
 
-    let lineOffset;
-
     traverse(ast, {
-        enter() {
-            lineOffset = 1;
-        },
+        Program: {
+            enter() {
+                const newline = lines.length;
+                lines[newline] = `console.log('diagnosticId: ${diagnosticId}, line: ${newline + 1}');`;
+                diagnosticMappings[diagnosticId] = resourcePath;
+                diagnosticId++;
+            }
+        }, 
         BlockStatement(path) {
             const { node } = path;
             const { start } = node.loc;

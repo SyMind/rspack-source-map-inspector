@@ -30,7 +30,7 @@ class InspectorPlugin {
         });
 
         await SourceMapConsumer.with(map, null, consumer => {
-          const regex = /console\.log\("diagnosticId: (\d+), line: (\d+)"\);/g;
+          const regex = /console\.log\(['"]diagnosticId: (\d+), line: (\d+)['"]\);/g;
           let match;
           while ((match = regex.exec(code)) !== null) {
             total++;
