@@ -1,3 +1,4 @@
+import * as ReactDOMServer from 'react-dom/server';
 import { Button, Space, DatePicker, version } from 'antd';
 
 const App = () => (
@@ -10,4 +11,5 @@ const App = () => (
   </div>
 );
 
-export default App;
+const html = ReactDOMServer.renderToString(<App />);
+console.log(html);

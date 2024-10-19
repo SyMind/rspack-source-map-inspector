@@ -1,6 +1,3 @@
-import * as ReactDOMServer from 'react-dom/server';
-import App from './App';
+import './react';
 import './sentry';
 
-const html = ReactDOMServer.renderToString(<App />);
-html;
