@@ -1,23 +1,17 @@
-# Rspack Project
+# Rspack Source Map Inspector
 
 ## Setup
 
 Install the dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 ## Get Started
 
-Start the dev server:
+To build the application and validate the source maps for a production build:
 
 ```bash
-npm run dev
-```
-
-Build the app for production:
-
-```bash
-npm run build
+pnpm run build
 ```
