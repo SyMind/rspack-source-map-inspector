@@ -12,4 +12,4 @@ const App = () => (
 );
 
 const html = ReactDOMServer.renderToString(<App />);
-console.log(html);
+html;

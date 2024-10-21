@@ -24,6 +24,7 @@
   },
   "packageManager": "pnpm@8.15.1+sha256.245fe901f8e7fa8782d7f17d32b6a83995e2ae03984cb5b62b8949bfdc27c7b5",
   "dependencies": {
+    "@material-table/core": "^6.4.4",
     "@sentry/node": "^8.34.0",
     "antd": "^5.21.4",
     "react": "^18.3.1",
