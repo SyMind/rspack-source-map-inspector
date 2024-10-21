@@ -49,10 +49,10 @@ class InspectorPlugin {
             }
           }
         });
-
-        console.log('Total diagnostics:', total);
-        console.log('Incorrect diagnostics:', incorrectCount);
       }
+
+      console.log('Total diagnostics:', total);
+      console.log('Incorrect diagnostics:', incorrectCount);
 
       callback();
     });
